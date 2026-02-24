@@ -55,7 +55,7 @@ document.getElementById("findBtn").addEventListener("click", function() {
   formData.append("dob", dob);
   formData.append("target_year", year);
 
-  fetch("http://127.0.0.1:8000/get-hindu-birthday", {
+  fetch("https://hindu-tithi-birthday.onrender.com/get-hindu-birthday", {
     method: "POST",
     body: formData
   })
