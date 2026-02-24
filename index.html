@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hindu Tithi Birthday Finder</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f4f4;
+      padding: 40px;
+    }
+    .box {
+      background: white;
+      padding: 20px;
+      max-width: 400px;
+      margin: auto;
+      border-radius: 8px;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    button {
+      background: orange;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Hindu Tithi Birthday</h2>
+
+  <input type="date" id="dob">
+  <input type="number" id="year" placeholder="Enter year (e.g. 2026)">
+  <button id="findBtn">Find</button>
+
+  <p id="result"></p>
+</div>
+
+<script>
+document.getElementById("findBtn").addEventListener("click", function() {
+
+  let dob = document.getElementById("dob").value;
+  let year = document.getElementById("year").value;
+
+  if (!dob || !year) {
+    alert("Please enter DOB and Year");
+    return;
+  }
+
+  let formData = new FormData();
+  formData.append("dob", dob);
+  formData.append("target_year", year);
+
+  fetch("http://127.0.0.1:8000/get-hindu-birthday", {
+    method: "POST",
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.error) {
+      document.getElementById("result").innerText = data.error;
+    } else {
+      document.getElementById("result").innerHTML =
+        "🪔 Janma Tithi: " + data.janma_tithi +
+        "<br>📅 Hindu Birthday (" + data.hindu_birthday_year + "): " +
+        data.hindu_birthday_date;
+    }
+  })
+  .catch(error => {
+    document.getElementById("result").innerText =
+      "Backend not reachable. Is server running?";
+  });
+
+});
+</script>
+<footer style="
+  margin-top: 40px;
+  text-align: center;
+  padding: 15px;
+  font-size: 14px;
+  color: #555;
+  border-top: 1px solid #ddd;
+">
+  <p>
+     <strong>Created by Siddharth Patidar</strong>
+  </p>
+  <p style="font-style: italic;">
+    
+  </p>
+</footer>
+
+</body>
+</html>
