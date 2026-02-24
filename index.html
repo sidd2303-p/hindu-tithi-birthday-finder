@@ -1,97 +1,118 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Hindu Tithi Birthday Finder</title>
   <style>
     body {
-      font-family: Arial;
-      background: #f4f4f4;
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
       padding: 40px;
     }
-    .box {
-      background: white;
-      padding: 20px;
-      max-width: 400px;
+    .card {
+      max-width: 420px;
       margin: auto;
+      background: #fff;
+      padding: 20px;
       border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
+    h2 { text-align: center; }
     input, button {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
     }
     button {
-      background: orange;
-      color: white;
+      background: #ff9800;
+      color: #fff;
       border: none;
       cursor: pointer;
+    }
+    button:hover {
+      background: #e68900;
+    }
+    #result {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+      border-top: 1px solid #ddd;
+      padding-top: 15px;
     }
   </style>
 </head>
 <body>
 
-<div class="box">
-  <h2>Hindu Tithi Birthday</h2>
+  <div class="card">
+    <h2>🪔 Hindu Tithi Birthday</h2>
 
-  <input type="date" id="dob">
-  <input type="number" id="year" placeholder="Enter year (e.g. 2026)">
-  <button id="findBtn">Find</button>
+    <input type="date" id="dob">
+    <input type="number" id="year" placeholder="Enter year (e.g. 2026)">
+    <button id="findBtn">Find</button>
 
-  <p id="result"></p>
-</div>
+    <div id="result"></div>
+  </div>
 
-<script>
-document.getElementById("findBtn").addEventListener("click", function() {
+  <footer>
+    <p><strong>Created by Siddharth Patidar</strong></p>
+    <p><em>“जन्म तिथि वही, जो चंद्रमा के साथ चले”</em></p>
+  </footer>
 
-  let dob = document.getElementById("dob").value;
-  let year = document.getElementById("year").value;
+  <script>
+    const BACKEND_URL = "https://hindu-tithi-birthday.onrender.com/get-hindu-birthday";
+    // ⚠️ Agar tumhara Render URL alag hai to yahan change karo
 
-  if (!dob || !year) {
-    alert("Please enter DOB and Year");
-    return;
-  }
+    document.getElementById("findBtn").addEventListener("click", async function () {
 
-  let formData = new FormData();
-  formData.append("dob", dob);
-  formData.append("target_year", year);
+      let dob = document.getElementById("dob").value;
+      let year = document.getElementById("year").value;
+      let resultDiv = document.getElementById("result");
 
-  fetch("https://hindu-tithi-birthday.onrender.com/get-hindu-birthday", {
-    method: "POST",
-    body: formData
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.error) {
-      document.getElementById("result").innerText = data.error;
-    } else {
-      document.getElementById("result").innerHTML =
-        "🪔 Janma Tithi: " + data.janma_tithi +
-        "<br>📅 Hindu Birthday (" + data.hindu_birthday_year + "): " +
-        data.hindu_birthday_date;
-    }
-  })
-  .catch(error => {
-    document.getElementById("result").innerText =
-      "Backend not reachable. Is server running?";
-  });
+      if (!dob || !year) {
+        alert("Please enter DOB and Year");
+        return;
+      }
 
-});
-</script>
-<footer style="
-  margin-top: 40px;
-  text-align: center;
-  padding: 15px;
-  font-size: 14px;
-  color: #555;
-  border-top: 1px solid #ddd;
-">
-  <p>
-     <strong>Created by Siddharth Patidar</strong>
-  </p>
-  <p style="font-style: italic;">
-    
-  </p>
-</footer>
+      resultDiv.innerHTML = "⏳ Connecting to server... (first request may take 20-30 sec)";
+
+      let formData = new FormData();
+      formData.append("dob", dob);
+      formData.append("target_year", year);
+
+      try {
+        const response = await fetch(BACKEND_URL, {
+          method: "POST",
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error("Server error");
+        }
+
+        const data = await response.json();
+
+        if (data.error) {
+          resultDiv.innerHTML = "❌ " + data.error;
+        } else {
+          resultDiv.innerHTML =
+            "🪔 Janma Tithi: " + data.janma_tithi +
+            "<br>📅 Hindu Birthday (" + data.hindu_birthday_year + "): " +
+            data.hindu_birthday_date;
+        }
+
+      } catch (error) {
+        console.error(error);
+        resultDiv.innerHTML =
+          "❌ Backend not reachable. Please wait and try again.";
+      }
+
+    });
+  </script>
 
 </body>
 </html>
